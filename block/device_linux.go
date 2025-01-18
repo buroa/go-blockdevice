@@ -59,22 +59,43 @@ func (d *Device) GetSize() (uint64, error) {
 	return devsize, nil
 }
 
-// GetIOSize returns blockdevice optimal I/O size in bytes.
-func (d *Device) GetIOSize() (uint, error) {
-	for _, ioctl := range []uintptr{unix.BLKIOOPT, unix.BLKIOMIN, unix.BLKBSZGET} {
-		var size uint
-		if _, _, errno := unix.Syscall(unix.SYS_IOCTL, d.f.Fd(), ioctl, uintptr(unsafe.Pointer(&size))); errno != 0 {
-			continue
-		}
+// GetAlignmentOffset returns blockdevice alignment offset in bytes.
+func (d *Device) GetAlignmentOffset() uint {
+	var offset uint
 
-		if size > 0 && isPowerOf2(size) {
-			return size, nil
-		}
+	if _, _, errno := unix.Syscall(unix.SYS_IOCTL, d.f.Fd(), uintptr(unix.BLKALIGNOFF), uintptr(unsafe.Pointer(&offset))); errno != 0 {
+		return 0
 	}
 
 	runtime.KeepAlive(d)
 
-	return DefaultBlockSize, nil
+	return offset
+}
+
+// GetOptimalIOSize returns blockdevice optimal I/O size in bytes.
+func (d *Device) GetOptimalIOSize() uint {
+	var size uint
+
+	if _, _, errno := unix.Syscall(unix.SYS_IOCTL, d.f.Fd(), uintptr(unix.BLKIOOPT), uintptr(unsafe.Pointer(&size))); errno != 0 {
+		return 0
+	}
+
+	runtime.KeepAlive(d)
+
+	return size
+}
+
+// GetMinimumIOSize returns blockdevice minimum I/O size in bytes.
+func (d *Device) GetMinimumIOSize() uint {
+	var size uint
+
+	if _, _, errno := unix.Syscall(unix.SYS_IOCTL, d.f.Fd(), uintptr(unix.BLKIOMIN), uintptr(unsafe.Pointer(&size))); errno != 0 {
+		return 0
+	}
+
+	runtime.KeepAlive(d)
+
+	return size
 }
 
 // GetSectorSize returns blockdevice sector size in bytes.

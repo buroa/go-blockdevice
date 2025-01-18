@@ -175,7 +175,7 @@ func TestDevice(t *testing.T) {
 	t.Run("sector size", func(t *testing.T) {
 		assert.EqualValues(t, 512, devWhole.GetSectorSize())
 
-		ioSize, err := devWhole.GetIOSize()
+		ioSize := devWhole.GetMinimumIOSize()
 		require.NoError(t, err)
 		assert.EqualValues(t, 512, ioSize)
 	})

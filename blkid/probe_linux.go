@@ -125,7 +125,7 @@ func (i *Info) probe(f *os.File, chain chain.Chain, offset, length uint64, optio
 		return nil, probe.MagicMatch{}, fmt.Errorf("probing range is too small: len %d < max magic size %d", length, chain.MaxMagicSize())
 	}
 
-	magicReadSize := max(uint(chain.MaxMagicSize()), i.IOSize)
+	magicReadSize := max(uint(chain.MaxMagicSize()), i.MinimumIOSize)
 
 	if uint64(magicReadSize) > length {
 		magicReadSize = uint(length)

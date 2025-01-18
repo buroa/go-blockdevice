@@ -33,7 +33,9 @@ type Device interface {
 
 	GetSectorSize() uint
 	GetSize() uint64
-	GetIOSize() (uint, error)
+	GetAlighmentOffset() uint
+	GetOptimalIOSize() uint
+	GetMinimumIOSize() uint
 	Sync() error
 
 	GetKernelLastPartitionNum() (int, error)
@@ -257,16 +259,21 @@ func (t *Table) init(lastLBA uint64) {
 	t.firstUsableLBA = t.primaryPartitionsLBA + uint64(lbasForEntries)
 	t.lastUsableLBA = t.secondaryPartitionsLBA - 1
 
-	ioSize, err := t.dev.GetIOSize()
-	if err != nil {
-		ioSize = t.sectorSize
+	optimalSize := t.dev.GetOptimalIOSize()
+
+	if optimalSize != 0 {
+		t.alignment = uint64(optimalSize / t.sectorSize)
+	} else {
+		t.alignment = uint64(block.DefaultIOSize / t.sectorSize)
 	}
 
-	alignmentSize := max(ioSize, 1048576)                                   // align to 1Mib minimum
-	t.alignment = uint64((alignmentSize + t.sectorSize - 1) / t.sectorSize) // 2048 with 512 sector size, 256 with 4096 sector size
+	// 2048 with 512 sector size, up to 256 with 4096 sector size
+	t.firstUsableLBA = (t.firstUsableLBA + t.alignment - 1) / t.alignment * t.alignment
 
-	t.firstUsableLBA = (t.firstUsableLBA + t.alignment - 1) / t.alignment * t.alignment // 2048 with 512 sector size, 256 with 4096 sector size
-	t.firstUsableLBA = max(t.firstUsableLBA, 1024)                                      // make first usable LBA at least 1024 to avoid issues with some BIOSes
+	// "legacy" disks have zero optimal size, so set the first usable LBA to 1024
+	if optimalSize == 0 {
+		t.firstUsableLBA = max(t.firstUsableLBA, 1024)
+	}
 }
 
 // Clear the partition table.

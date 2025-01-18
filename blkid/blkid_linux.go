@@ -56,10 +56,7 @@ func Probe(f *os.File, opts ...ProbeOption) (*Info, error) {
 			return nil, fmt.Errorf("failed to get device number: %w", err)
 		}
 
-		var (
-			size   uint64
-			ioSize uint
-		)
+		var size uint64
 
 		if size, err = info.BlockDevice.GetSize(); err == nil {
 			info.Size = size
@@ -67,12 +64,9 @@ func Probe(f *os.File, opts ...ProbeOption) (*Info, error) {
 			return nil, fmt.Errorf("failed to get block device size: %w", err)
 		}
 
-		if ioSize, err = info.BlockDevice.GetIOSize(); err == nil {
-			info.IOSize = ioSize
-		} else {
-			return nil, fmt.Errorf("failed to get block device I/O size: %w", err)
-		}
-
+		info.AlignmentOffset = info.BlockDevice.GetAlignmentOffset()
+		info.OptimalIOSize = info.BlockDevice.GetOptimalIOSize()
+		info.MinimumIOSize = info.BlockDevice.GetMinimumIOSize()
 		info.SectorSize = info.BlockDevice.GetSectorSize()
 
 		info.WholeDisk, err = info.BlockDevice.IsWholeDisk()
@@ -82,7 +76,7 @@ func Probe(f *os.File, opts ...ProbeOption) (*Info, error) {
 	case unix.S_IFREG:
 		// regular file (an image?), so use different settings
 		info.Size = uint64(st.Size())
-		info.IOSize = block.DefaultBlockSize
+		info.MinimumIOSize = block.DefaultIOSize
 		info.SectorSize = block.DefaultBlockSize
 	default:
 		return nil, fmt.Errorf("unsupported file type: %s", st.Mode().Type())

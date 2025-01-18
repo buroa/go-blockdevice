@@ -41,8 +41,14 @@ type Info struct { //nolint:govet
 	// Sector size of the device (in bytes).
 	SectorSize uint
 
+	// Alignment offset for the device (in bytes).
+	AlignmentOffset uint
+
 	// Optimal I/O size for the device (in bytes).
-	IOSize uint
+	OptimalIOSize uint
+
+	// Minimum I/O size for the device (in bytes).
+	MinimumIOSize uint
 
 	// ProbeResult is the result of probing the device.
 	ProbeResult

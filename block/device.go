@@ -39,6 +39,9 @@ func (d *Device) File() *os.File {
 // DefaultBlockSize is the default block size in bytes.
 const DefaultBlockSize = 512
 
+// DefaultIOSize is the default I/O size in bytes.
+const DefaultIOSize = 1048576
+
 // DeviceProperties contains the properties of a block device.
 type DeviceProperties struct {
 	// Device name, as in 'sda'.

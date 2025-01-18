@@ -558,7 +558,7 @@ func TestProbePathFilesystems(t *testing.T) {
 						assert.Nil(t, info.BlockDevice)
 					}
 
-					assert.EqualValues(t, block.DefaultBlockSize, info.IOSize)
+					assert.EqualValues(t, block.DefaultBlockSize, info.MinimumIOSize)
 
 					if test.size != 0 {
 						assert.EqualValues(t, test.size, info.Size)
@@ -956,7 +956,7 @@ func TestProbePathGPT(t *testing.T) {
 						assert.Nil(t, info.BlockDevice)
 					}
 
-					assert.EqualValues(t, block.DefaultBlockSize, info.IOSize)
+					assert.EqualValues(t, block.DefaultBlockSize, info.MinimumIOSize)
 
 					if test.size != 0 {
 						assert.EqualValues(t, test.size, info.Size)
@@ -1124,7 +1124,7 @@ func TestProbePathNested(t *testing.T) {
 
 			assert.NotNil(t, info.BlockDevice)
 
-			assert.EqualValues(t, block.DefaultBlockSize, info.IOSize)
+			assert.EqualValues(t, block.DefaultBlockSize, info.MinimumIOSize)
 
 			if test.size != 0 {
 				assert.EqualValues(t, test.size, info.Size)
@@ -1308,7 +1308,7 @@ func TestProbePathOurGPT(t *testing.T) {
 
 			assert.NotNil(t, info.BlockDevice)
 
-			assert.EqualValues(t, block.DefaultBlockSize, info.IOSize)
+			assert.EqualValues(t, block.DefaultBlockSize, info.MinimumIOSize)
 
 			if test.size != 0 {
 				assert.EqualValues(t, test.size, info.Size)
